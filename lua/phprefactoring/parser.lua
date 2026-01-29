@@ -15,11 +15,11 @@ local cache = {
 
 -- Initialize the parser
 function M.setup()
-    -- Check if treesitter PHP parser is available
-    local has_ts, _ = pcall(require, 'nvim-treesitter.parsers')
-    if has_ts then
-        local parser_config = require('nvim-treesitter.parsers').get_parser_configs()
-        M.has_treesitter = parser_config.php ~= nil
+    -- Check if treesitter PHP parser is available using modern API
+    local ok, _ = pcall(vim.treesitter.language.get_lang, 'php')
+    if ok then
+        -- Also verify we can actually get a parser for PHP
+        M.has_treesitter = pcall(vim.treesitter.language.add, 'php')
     else
         M.has_treesitter = false
     end
