@@ -15,11 +15,14 @@ local cache = {
 
 -- Initialize the parser
 function M.setup()
-    -- `vim.treesitter.language.add` returns true when the PHP parser loads and
-    -- `nil, err` when it's missing. Older Neovim versions raised on failure, so
-    -- pcall handles both shapes.
-    local ok, added = pcall(vim.treesitter.language.add, 'php')
-    M.has_treesitter = ok and added == true
+    -- `vim.treesitter.language.add('php')` signals availability differently
+    -- across Neovim versions:
+    --   0.9/0.10 return nothing on success and raise on a missing parser.
+    --   0.11+    return `true` on success and `nil, err` on a missing parser.
+    -- pcall absorbs the old-style raise; checking the error slot (always nil on
+    -- success, non-nil on failure) works for both shapes.
+    local ok, _, err = pcall(vim.treesitter.language.add, 'php')
+    M.has_treesitter = ok and err == nil
 end
 
 -- Get current treesitter node at cursor
