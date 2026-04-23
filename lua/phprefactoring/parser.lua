@@ -15,14 +15,11 @@ local cache = {
 
 -- Initialize the parser
 function M.setup()
-    -- Check if treesitter PHP parser is available using modern API
-    local ok, _ = pcall(vim.treesitter.language.get_lang, 'php')
-    if ok then
-        -- Also verify we can actually get a parser for PHP
-        M.has_treesitter = pcall(vim.treesitter.language.add, 'php')
-    else
-        M.has_treesitter = false
-    end
+    -- `vim.treesitter.language.add` returns true when the PHP parser loads and
+    -- `nil, err` when it's missing. Older Neovim versions raised on failure, so
+    -- pcall handles both shapes.
+    local ok, added = pcall(vim.treesitter.language.add, 'php')
+    M.has_treesitter = ok and added == true
 end
 
 -- Get current treesitter node at cursor
